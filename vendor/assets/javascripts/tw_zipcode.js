@@ -1,14 +1,14 @@
 /**
  * jQuery TWzipcode plugin
- * https://app.essoduke.org/twzipcode/
- * Copyright 2015 essoduke.org, Licensed MIT.
+ * https://code.essoduke.org/twzipcode/
+ * Copyright 2016 essoduke.org, Licensed MIT.
  *
  * Changelog
  * -------------------------------
- * 修正 readonly 會造成 keyup, blur 無法被 detect 觸發的錯誤。
+ * 修正異體字「台」為正體字「臺」
  *
  * @author essoduke.org
- * @version 1.7.7
+ * @version 1.7.10
  * @license MIT License
  */
 ;(function ($, window, document, undefined) {
@@ -18,7 +18,7 @@
     // Zipcode JSON data
     var data = {
         '基隆市': {'仁愛區': '200', '信義區': '201', '中正區': '202', '中山區': '203', '安樂區': '204', '暖暖區': '205', '七堵區': '206'},
-        '台北市': {'中正區': '100', '大同區': '103', '中山區': '104', '松山區': '105', '大安區': '106', '萬華區': '108', '信義區': '110', '士林區': '111', '北投區': '112', '內湖區': '114', '南港區': '115', '文山區': '116'},
+        '臺北市': {'中正區': '100', '大同區': '103', '中山區': '104', '松山區': '105', '大安區': '106', '萬華區': '108', '信義區': '110', '士林區': '111', '北投區': '112', '內湖區': '114', '南港區': '115', '文山區': '116'},
         '新北市': {
           '萬里區': '207', '金山區': '208', '板橋區': '220', '汐止區': '221', '深坑區': '222', '石碇區': '223',
           '瑞芳區': '224', '平溪區': '226', '雙溪區': '227', '貢寮區': '228', '新店區': '231', '坪林區': '232',
@@ -29,7 +29,7 @@
         '宜蘭縣': {
           '宜蘭市': '260', '頭城鎮': '261', '礁溪鄉': '262', '壯圍鄉': '263', '員山鄉': '264', '羅東鎮': '265',
           '三星鄉': '266', '大同鄉': '267', '五結鄉': '268', '冬山鄉': '269', '蘇澳鎮': '270', '南澳鄉': '272',
-          '釣魚台列嶼': '290'
+          '釣魚臺列嶼': '290'
         },
         '新竹市': {'東區': '300', '北區': '300', '香山區': '300'},
         '新竹縣': {
@@ -47,7 +47,7 @@
           '通霄鎮': '357', '苑裡鎮': '358', '苗栗市': '360', '造橋鄉': '361', '頭屋鄉': '362', '公館鄉': '363',
           '大湖鄉': '364', '泰安鄉': '365', '銅鑼鄉': '366', '三義鄉': '367', '西湖鄉': '368', '卓蘭鎮': '369'
         },
-        '台中市': {
+        '臺中市': {
           '中區': '400', '東區': '401', '南區': '402', '西區': '403', '北區': '404', '北屯區': '406', '西屯區': '407', '南屯區': '408',
           '太平區': '411', '大里區': '412', '霧峰區': '413', '烏日區': '414', '豐原區': '420', '后里區': '421',
           '石岡區': '422', '東勢區': '423', '和平區': '424', '新社區': '426', '潭子區': '427', '大雅區': '428',
@@ -78,7 +78,7 @@
           '莿桐鄉': '647', '西螺鎮': '648', '二崙鄉': '649', '北港鎮': '651', '水林鄉': '652', '口湖鄉': '653',
           '四湖鄉': '654', '元長鄉': '655'
         },
-        '台南市': {
+        '臺南市': {
           '中西區': '700', '東區': '701', '南區': '702', '北區': '704', '安平區': '708', '安南區': '709',
           '永康區': '710', '歸仁區': '711', '新化區': '712', '左鎮區': '713', '玉井區': '714', '楠西區': '715',
           '南化區': '716', '仁德區': '717', '關廟區': '718', '龍崎區': '719', '官田區': '720', '麻豆區': '721',
@@ -105,7 +105,7 @@
           '新園鄉': '932', '枋寮鄉': '940', '枋山鄉': '941', '春日鄉': '942', '獅子鄉': '943', '車城鄉': '944',
           '牡丹鄉': '945', '恆春鎮': '946', '滿州鄉': '947'
         },
-        '台東縣': {
+        '臺東縣': {
           '臺東市': '950', '綠島鄉': '951', '蘭嶼鄉': '952', '延平鄉': '953', '卑南鄉': '954', '鹿野鄉': '955',
           '關山鎮': '956', '海端鄉': '957', '池上鄉': '958', '東河鄉': '959', '成功鎮': '961', '長濱鄉': '962',
           '太麻里鄉': '963', '金峰鄉': '964', '大武鄉': '965', '達仁鄉': '966'
@@ -132,20 +132,19 @@
          */
         var defaults = {
             'countyName': 'county',
-            'countySel': '',
             'css': [],
             'detect': false,             // v1.6.7
             'districtName': 'district',
-            'districtSel': '',
+            'googleMapsKey': '', // v1.6.9
+            'hideCounty': [], // v1.7.9
+            'hideDistrict': [], // v1.7.9
             'onCountySelect': null,      // v1.5
             'onDistrictSelect': null,    // v1.5
             'onZipcodeKeyUp': null,      // v1.5
             'readonly': false,
             'zipcodeName': 'zipcode',
             'zipcodePlaceholder': '郵遞區號',
-            'zipcodeSel': '',
             'zipcodeIntoDistrict': false, // v1.6.6
-            'googleMapsKey': '' // v1.6.9
         };
         /**
          * DOM of selector
@@ -165,7 +164,7 @@
      */
     TWzipcode.prototype = {
 
-        VERSION: '1.7.7',
+        VERSION: '1.7.10',
 
         /**
          * Method: Get all post data
@@ -263,6 +262,7 @@
         reset: function (container, obj) {
             var self = this,
                 wrap = self.wrap,
+                opts = self.options,
                 county = '',
                 list = {
                     'county': '<option value="">縣市</option>',
@@ -278,7 +278,7 @@
                 wrap.county.html(list.county);
                 wrap.district.html(list.district);
                 for (county in data) {
-                    if ('undefined' !== typeof data[county]) {
+                    if ('undefined' !== typeof data[county] && -1 === opts.hideCounty.indexOf(county)) {
                         tpl.push('<option value="' + county + '">' + county + '</option>');
                     }
                 }
@@ -311,7 +311,9 @@
                 if (val) {
                     if (true === opts.zipcodeIntoDistrict) {
                         for (district in data[val]) {
-                            if ('undefined' !== typeof data[val][district]) {
+                            if ('undefined' !== typeof data[val][district] &&
+                                (-1 === opts.hideDistrict.indexOf(district) && -1 === opts.hideDistrict.indexOf(data[val][district]))
+                            ) {
                                 tpl.push('<option value="' + district + '">');
                                 tpl.push(data[val][district] + ' ' + district);
                                 tpl.push('</option>');
@@ -319,7 +321,9 @@
                         }
                     } else {
                         for (district in data[val]) {
-                            if ('undefined' !== typeof data[val][district]) {
+                            if ('undefined' !== typeof data[val][district] &&
+                                (-1 === opts.hideDistrict.indexOf(district) && -1 === opts.hideDistrict.indexOf(data[val][district]))
+                            ) {
                                 tpl.push('<option value="' + district + '">');
                                 tpl.push(district);
                                 tpl.push('</option>');
